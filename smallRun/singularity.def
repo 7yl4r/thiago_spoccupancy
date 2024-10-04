@@ -1,0 +1,13 @@
+Bootstrap: docker
+From: rocker/geospatial
+
+%post
+	sudo Rscript -e "install.packages('spOccupancy')"
+
+%files
+	5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R
+	Shapes
+	spOccupancy_MultiSpp_FullArea
+
+%runscript
+	Rscript 5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R
