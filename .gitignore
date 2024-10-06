@@ -1,2 +1,11 @@
 .RData
 .Rhistory
+
+# ubuntu backups
+*~
+
+# singularity image files
+*.sif
+
+# slurm output files
+*.out
