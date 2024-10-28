@@ -7,9 +7,6 @@
 ########                           Warm period                   #############
 ##############################################################################
 
-## high performance compute settings
-N_THREADS = 32
-
 ## Upload package and organize A-BioTrack data 
 library(spOccupancy)
 library(coda)
@@ -264,7 +261,7 @@ for(j in 1:length(AllSpp)){
                            n.burn = n.burn,
                            n.thin = n.thin,
                            n.chains = 3,
-                           n.omp.threads = N_THREADS, # Within chain parallel running
+                           n.omp.threads = 32, # Within chain parallel running
                            batch.length = batch.length,
                            n.report = 100)
   
