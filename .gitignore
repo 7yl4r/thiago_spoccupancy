@@ -9,3 +9,13 @@
 
 # slurm output files
 *.out
+
+# program output files
+*.txt
+*.jpeg
+*.dbf
+*.prj
+*.shp
+*.shx
+*.pdf
+*.RData
