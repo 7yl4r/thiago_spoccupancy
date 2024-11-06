@@ -9,4 +9,4 @@
 
 module load apps/singularity/3.5.0
 
-singularity run run.sif 
+singularity run ../run.sif 
