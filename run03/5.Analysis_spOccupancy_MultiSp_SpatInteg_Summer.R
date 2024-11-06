@@ -261,7 +261,7 @@ for(j in 1:length(AllSpp)){
                            n.burn = n.burn,
                            n.chains = 3,
                            n.thin = n.thin,
-                           n.omp.threads = 1, # Within chain parallel running
+                           n.omp.threads = 64, # Within chain parallel running
                            batch.length = batch.length,
                            n.report = 500)
   
