@@ -9,6 +9,19 @@ starting from ubuntu 24 with r-base installed
 ## run
 * `Rscript 5...`5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R
 
+### Singularity
+Singularity is used to package the application for a SLURM supercomputer.
+
+```bash
+# Build `run.sif` from `Singularity.def` on local machine with sudo:
+sudo singularity build run.sif Singularity.def
+
+# transfer .sif to supercomputer
+rsync -hazv run.sif tylarmurray@circe.rc.usf.edu:.
+
+
+```
+
 ### SLURM
 
 #### set up new run
