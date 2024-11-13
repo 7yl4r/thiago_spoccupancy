@@ -27,7 +27,7 @@ cp ../$TEMPLATE/5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R .
 cp ../$TEMPLATE/submit.sh .
 
 git add README.md 5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R submit.sh
-
+git add -f Grid_OccEnv_Seasonal.txt Shapes spOccupancy_MultiSpp_FullArea
 ```
 
 NOTE: for *winter runs, the file is still named `*_Summer.R`, just use a different `TEMPLATE`.
