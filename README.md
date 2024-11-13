@@ -15,14 +15,19 @@ starting from ubuntu 24 with r-base installed
 `mkdir` run##, `cd` into it, then:
 
 ```bash
+TEMPLATE=run03
 mkdir old-slurm
-touch README.md
+cat "new run from template $TEMPLATE" > README.md
 
 ln -s ../data/Shapes Shapes
 ln -s ../data/spOccupancy_MultiSpp_FullArea spOccupancy_MultiSpp_FullArea
 ln -s ../data/Grid_OccEnv_Seasonal.txt Grid_OccEnv_Seasonal.txt
 
-cp ../run03/5.Analysis_spOccupancy_MultiSp_SpatInteg_Winter.R .
-cp ../run03/5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R .
-cp ../run03/submit.sh .
+cp ../$TEMPLATE/5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R .
+cp ../$TEMPLATE/submit.sh .
+
+git add README.md 5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R submit.sh
+
 ```
+
+NOTE: for *winter runs, the file is still named `*_Summer.R`, just use a different `TEMPLATE`.
