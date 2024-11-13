@@ -9,6 +9,7 @@
 
 # slurm output files
 *.out
+core.*
 
 # program output files
 *.txt
