@@ -1,1 +1,0 @@
-../data/Grid_OccEnv_Seasonal.txt
