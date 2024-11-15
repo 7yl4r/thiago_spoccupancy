@@ -244,8 +244,6 @@ data.int <- list("y" = y.int,
   
 str(data.int)
 
-
-
 ##### Run model
 occ.formula.int <- ~  scale(Depth) + scale(SST) +  I(scale(SST)^2) +
   scale(Chlor) + I(scale(Chlor)^2) + scale(TSM) + scale(SSH)

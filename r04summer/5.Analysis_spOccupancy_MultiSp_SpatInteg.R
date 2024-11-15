@@ -138,6 +138,7 @@ save(AllSpp, spDetectList_Tel, spDetectList_Obis, GridDetEnvList_Obis, Grid_OccE
      Grid_DetEnv, Grid_DetEnv_Tel, FullGrid,
      file=dataFile)
 
+
 ## Create an empty matrix to compute Bayesian p-value and k-fold estimates
 ModelValid <- as.data.frame(matrix(NA, nrow = 1, ncol = 6))
 colnames(ModelValid) <- c("spID", "Species", "k-fold.integ.tel", "k-fold.integ.obis",
@@ -243,7 +244,6 @@ data.int <- list("y" = y.int,
                  "coords" = coords.int)
   
 str(data.int)
-
 
 
 ##### Run model
