@@ -244,8 +244,6 @@ data.int <- list("y" = y.int,
   
 str(data.int)
 
-
-
 ##### Run model
 occ.formula.int <- ~  scale(Depth) + scale(SST) +  I(scale(SST)^2) +
   scale(Chlor) + I(scale(Chlor)^2) + scale(TSM) + scale(SSH)
@@ -458,6 +456,8 @@ SSH.pred <- (Grid_OccEnv$SSH - mean(data.int$occ.covs[, predInd4])) / sd(data.in
 # X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, SSH.pred)  #Depth.pred
 X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, TSM.pred, SSH.pred)  #Depth.pred
 coords.0 <- as.matrix(Grid_OccEnv[, c('X', 'Y')])
+print("X.0")
+print(X.0)
 out.sp.pred <- predict(out.sp.int, X.0, coords.0, verbose = FALSE) # Spatial
 # out.sp.pred <- predict(out.sp.int, X.0) # Non-spatial
 
