@@ -448,10 +448,10 @@ DepthNeg <- Grid_OccEnv$Depth
 DepthNeg[DepthNeg >= 0] <- -0.1
 DepthTrans <- -DepthNeg
 Depth.pred <- (DepthTrans - mean(data.int$occ.covs[, 1])) / sd(data.int$occ.covs[, 1])  ## Add depth
-SST.pred <- (Grid_OccEnv$SST - mean(data.int$occ.covs[, predInd1])) / sd(data.int$occ.covs[, predInd1])
-Chlor.pred <- (Grid_OccEnv$CHLOR - mean(data.int$occ.covs[, predInd2])) / sd(data.int$occ.covs[, predInd2])
-TSM.pred <- (Grid_OccEnv$TSM - mean(data.int$occ.covs[, predInd3])) / sd(data.int$occ.covs[, predInd3])
-SSH.pred <- (Grid_OccEnv$SSH - mean(data.int$occ.covs[, predInd4])) / sd(data.int$occ.covs[, predInd4])
+SST.pred <- (Grid_OccEnv[[SST]] - mean(data.int$occ.covs[, predInd1])) / sd(data.int$occ.covs[, predInd1])
+Chlor.pred <- (Grid_OccEnv[[CHLOR]] - mean(data.int$occ.covs[, predInd2])) / sd(data.int$occ.covs[, predInd2])
+TSM.pred <- (Grid_OccEnv[[TSM]] - mean(data.int$occ.covs[, predInd3])) / sd(data.int$occ.covs[, predInd3])
+SSH.pred <- (Grid_OccEnv[[SSH]] - mean(data.int$occ.covs[, predInd4])) / sd(data.int$occ.covs[, predInd4])
 # These are the new intercept and covariate data.
 # X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, SSH.pred)  #Depth.pred
 X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, TSM.pred, SSH.pred)  #Depth.pred
