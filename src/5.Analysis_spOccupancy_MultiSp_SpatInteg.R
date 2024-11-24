@@ -472,7 +472,7 @@ plot.grid <- cbind(st_as_sf(FullGrid), plot.dat$mean.psi, plot.dat$sd.psi)
 
 ## Export predictive map as shapefile
 spName_shape <- chartr(" ", "_", AllSpp[j])
-file_name_shape = paste("SDM_Shape_, seasonName, "_", spName_shape, ".shp", sep="")
+file_name_shape = paste("SDM_Shape_", seasonName, "_", spName_shape, ".shp", sep="")
 st_write(plot.grid, file_name_shape, append = FALSE)
 
 ## Plot mean occupancy
