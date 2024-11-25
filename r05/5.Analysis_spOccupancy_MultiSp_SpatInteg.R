@@ -19,7 +19,7 @@ speciesNumber <- args[2]
 
 nThreads <- 4
 
-
+print(glue(" ###### sp.{speciesNumber} | {seasonName} ######"))
 # Perform actions based on the value of season
 if (seasonName == "winter") {
   print("It's winter! Time to stay cozy and warm.")
@@ -109,6 +109,7 @@ GridDetEnvList_Obis <- list()
 
 ## Import detection histories for all species 
 i <- speciesNumber
+print(glue("\n\n###### setting up for species #{i} ######"))
 objName.tel <- paste ("sp",i ,".tel", sep = "")
 fileName.tel <- paste ("spOccupancy_MultiSpp_FullArea/MultiSpp_DetHist_Sp",i ,".txt", sep = "")
 file.tel <- read.table(file = fileName.tel , header = T)
@@ -145,7 +146,7 @@ colnames(ModelValid) <- c("spID", "Species", "k-fold.integ.tel", "k-fold.integ.o
 
 ## Loop over species
 j <- speciesNumber
-  
+print(glue("\n\n###### running for sp#{speciesNumber} ######"))
 ## Fill season months 
 SpDetectHistory_Tel <- spDetectList_Tel[[j]][,season]
 SpDetectHistory_Obis <- spDetectList_Obis[[j]][,season]
@@ -304,7 +305,7 @@ out.sp.int <- spIntPGOcc(occ.formula = occ.formula.int,
   
 ## Export output
 sink(file = paste("Output_", seasonName, "_", AllSpp[j],".txt", sep = ""))
-print(AllSpp[j])
+print(glue("\n\n###### selected species: {AllSpp[j]} ######")
 summary(out.sp.int)
 sink(file = NULL)
   
