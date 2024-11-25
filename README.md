@@ -36,10 +36,11 @@ ln -s ../data/Shapes Shapes
 ln -s ../data/spOccupancy_MultiSpp_FullArea spOccupancy_MultiSpp_FullArea
 ln -s ../data/Grid_OccEnv_Seasonal.txt Grid_OccEnv_Seasonal.txt
 
-cp ../$TEMPLATE/5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R .
+cp ../src/5.Analysis_spOccupancy_MultiSp_SpatInteg.R .
+
 cp ../$TEMPLATE/submit.sh .
 
-git add README.md 5.Analysis_spOccupancy_MultiSp_SpatInteg_Summer.R submit.sh
+git add README.md 5.Analysis_spOccupancy_MultiSp_SpatInteg.R submit.sh
 git add -f Grid_OccEnv_Seasonal.txt Shapes spOccupancy_MultiSpp_FullArea
 ```
 
