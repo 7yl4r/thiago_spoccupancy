@@ -3,6 +3,8 @@
 #SBATCH --ntasks=4
 #SBATCH --mem-per-cpu=2000
 #SBATCH --array=1-2
+#SBATCH --mail-type=END,FAIL,TIME_LIMIT
+#SBATCH --mail-user=user@usf.edu
 #
 # slurm submit script
 
