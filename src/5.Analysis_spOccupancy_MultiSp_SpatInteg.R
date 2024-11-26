@@ -11,6 +11,7 @@ library(spOccupancy)
 library(coda)
 library(stars)
 library(ggplot2)
+library(glue)
 set.seed(102)
 
 args <- commandArgs(trailingOnly = TRUE)
