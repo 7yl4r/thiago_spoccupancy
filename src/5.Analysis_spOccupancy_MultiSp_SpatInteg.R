@@ -306,7 +306,7 @@ out.sp.int <- spIntPGOcc(occ.formula = occ.formula.int,
   
 ## Export output
 sink(file = paste("Output_", seasonName, "_", AllSpp[j],".txt", sep = ""))
-print(glue("\n\n###### selected species: {AllSpp[j]} ######")
+print(glue("\n\n###### selected species: {AllSpp[j]} ######"))
 summary(out.sp.int)
 sink(file = NULL)
   
