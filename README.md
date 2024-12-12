@@ -1,6 +1,6 @@
 SDM modeling built from acoustic tag data of 69 species in the Florida region.
 R code packaged using Singularity to run on USF's SLURM supercomputer CIRCE.
-This is a collaborative project under the SE US MBON between 
+This is a collaborative project under the SE US MBON. 
 
 This repo includes source code under `./src/` and details on each supercomputer run taken in the debugging process (`./r*/` dirs).   
 
