@@ -1,3 +1,9 @@
+SDM modeling built from acoustic tag data of 69 species in the Florida region.
+R code packaged using Singularity to run on USF's SLURM supercomputer CIRCE.
+This is a collaborative project under the SE US MBON between 
+
+This repo includes source code under `./src/` and details on each supercomputer run taken in the debugging process (`./r*/` dirs).   
+
 ## setup
 starting from ubuntu 24 with r-base installed
 * `sudo apt install -y cmake libssl-dev libudunits2-dev libgdal-dev`
@@ -45,3 +51,9 @@ git add -f Grid_OccEnv_Seasonal.txt Shapes spOccupancy_MultiSpp_FullArea
 ```
 
 NOTE: for *winter runs, the file is still named `*_Summer.R`, just use a different `TEMPLATE`.
+
+# Authorship
+* Thiago Belisario D'Araujo Couto
+* Viviane Zulian
+* Tylar Murray
+* Neil Hammerschlag
