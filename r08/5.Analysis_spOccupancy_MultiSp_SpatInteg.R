@@ -142,6 +142,8 @@ save(AllSpp, spDetectList_Tel, spDetectList_Obis, GridDetEnvList_Obis, Grid_OccE
 
 ## Create an empty matrix to compute Bayesian p-value and k-fold estimates
 ModelValid <- as.data.frame(matrix(NA, nrow = 1, ncol = 6))
+
+#print(glue("\n\n###### column names for estimates:"))
 colnames(ModelValid) <- c("spID", "Species", "k-fold.integ.tel", "k-fold.integ.obis",
                           "k-fold.tel.alone", "k-fold.obis.alone")
 
@@ -184,7 +186,9 @@ sites.obis <- as.numeric(rownames(sp.y.obis))
   
 ## Check the unique site IDs with data, detections and non-detections
 UniqueSites <- sort(unique(c(sites.obis, sites.tel)))
-length(UniqueSites)/dim(FullGrid)[1] # Proportion
+print(glue("
+  proportion: {length(UniqueSites)/dim(FullGrid)[1]}
+"))
   
 ## Rename unique and duplicated site IDs following a sequential order
 CellSeqIDs <- cbind("SeqID" = 1:length(UniqueSites), UniqueSites)
@@ -243,10 +247,11 @@ data.int <- list("y" = y.int,
                  "det.covs" = det.covs.int, 
                  "sites" = sites.int,
                  "coords" = coords.int)
-  
+print("\n\n###### everything in one single list ######")
 str(data.int)
 
 ##### Run model
+print("\n\n###### running model...")
 occ.formula.int <- ~  scale(Depth) + scale(SST) +  I(scale(SST)^2) +
   scale(Chlor) + I(scale(Chlor)^2) + scale(TSM) + scale(SSH)
   
@@ -306,7 +311,7 @@ out.sp.int <- spIntPGOcc(occ.formula = occ.formula.int,
   
 ## Export output
 sink(file = paste("Output_", seasonName, "_", AllSpp[j],".txt", sep = ""))
-print(glue("\n\n###### selected species: {AllSpp[j]} ######"))
+print(glue("\n\n###### exporting output for selected species: {AllSpp[j]} ######"))
 summary(out.sp.int)
 sink(file = NULL)
   
@@ -317,12 +322,13 @@ write.table(Waic, file = paste("testeWAIC_", seasonName, "_", AllSpp[j],".txt", 
 #####################  Model validation  #########
   
 ## Model validation - Goodness of Fit (GoF) assessment (Bayesian p-value)
+print('\n\n###### performing model validation...')
 ppc.out.g1 <- ppcOcc(out.sp.int, fit.stat = 'freeman-tukey', group = 1)
 summary(ppc.out.g1)
   
 ## Export output
 sink(file = paste("Bayesian_p-valueFull", seasonName, "_", AllSpp[j],".txt", sep = ""))
-print(AllSpp[j])
+print(glue("\n\n###### exporting output for sp {AllSpp[j]}"))
 summary(ppc.out.g1)
 sink(file = NULL)
   
@@ -445,6 +451,7 @@ quantile(diff.fit.obis, probs = c(0.025, 0.975))
 #### Predict  ##########################
   
 ## Predictions for the whole study area
+print("\n\n ###### creating predictions for the whole study area...")
 str(Grid_OccEnv)
 DepthNeg <- Grid_OccEnv$Depth
 DepthNeg[DepthNeg >= 0] <- -0.1
@@ -458,12 +465,13 @@ SSH.pred <- (Grid_OccEnv[[SSH]] - mean(data.int$occ.covs[, predInd4])) / sd(data
 # X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, SSH.pred)  #Depth.pred
 X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, TSM.pred, SSH.pred)  #Depth.pred
 coords.0 <- as.matrix(Grid_OccEnv[, c('X', 'Y')])
-print("X.0")
-print(X.0)
+#print("\n\n###### head(X.0) :")
+print(head(X.0))
 out.sp.pred <- predict(out.sp.int, X.0, coords.0, verbose = FALSE) # Spatial
 # out.sp.pred <- predict(out.sp.int, X.0) # Non-spatial
 
 # Produce a species distribution map (posterior predictive means of occupancy)
+print('\n\n###### creating species dist map...')
 plot.dat <- data.frame(x = Grid_OccEnv$X,
                        y = Grid_OccEnv$Y,
                        mean.psi = apply(out.sp.pred$psi.0.samples, 2, mean),
@@ -473,6 +481,7 @@ class(FullGrid)
 plot.grid <- cbind(st_as_sf(FullGrid), plot.dat$mean.psi, plot.dat$sd.psi)
 
 ## Export predictive map as shapefile
+print('\n\n###### exporting map as shapefile...')
 spName_shape <- chartr(" ", "_", AllSpp[j])
 file_name_shape = paste("SDM_Shape_", seasonName, "_", spName_shape, ".shp", sep="")
 st_write(plot.grid, file_name_shape, append = FALSE)
@@ -519,7 +528,7 @@ write.table(Z_sp, file = paste("Zposterior_", seasonName, "_Sp", AllSpp[j],".txt
 ## Clean up memory to run for other species
 rm(out.sp.int, out.sp.pred, plot.dat, plot.grid, Z_sp)
 
-print(j)
+print(glue('j = {j}'))
   
 
 
