@@ -725,3 +725,5 @@ print(glue('j = {j}'))
 # ggsave(filename = paste(file_name_RichMean),
 #        plot =  MeanRichMap, width = 10, height = 9, units = 'cm',
 #        scale = 2, dpi = 100)
+
+print("\n\n###### done.")
