@@ -5,7 +5,9 @@
 ########       Single-species spatial integrated  occupancy      #############
 ########                Multiple species aggregations            #############
 ##############################################################################
-
+##############################################################################
+### imports
+##############################################################################
 ## Upload package and organize A-BioTrack data 
 library(spOccupancy)
 library(coda)
@@ -13,10 +15,13 @@ library(stars)
 library(ggplot2)
 library(glue)
 set.seed(102)
-
+##############################################################################
+##############################################################################
+### read command line arguments
+##############################################################################
 args <- commandArgs(trailingOnly = TRUE)
 seasonName <- args[1]
-speciesNumber <- args[2]
+speciesNumber <- as.integer(args[2])
 
 nThreads <- 4
 
@@ -55,15 +60,15 @@ if (seasonName == "winter") {
   # Exit with an error if the input is invalid
   stop("Error: Invalid season. Please specify 'winter' or 'summer'.", call. = FALSE)
 }
-
-
-
-
-
-
-## Upload Grid data for mapping
+##############################################################################
+##############################################################################
+### Read Grid data for mapping
+##############################################################################
 FullGrid <- st_read("Shapes/FullDataGrid.shp")
-
+##############################################################################
+##############################################################################
+### make list of all species
+##############################################################################
 SharkSpp <- c("Alopias vulpinus", "Carcharhinus acronotus", "Carcharhinus brevipinna", "Carcharhinus leucas",
               "Carcharhinus limbatus", "Carcharhinus obscurus", "Carcharhinus perezii", "Carcharhinus plumbeus",
               "Carcharias taurus", "Galeocerdo cuvier", "Ginglymostoma cirratum", "Isurus oxyrinchus",
@@ -93,6 +98,9 @@ FishSpp <- c("Acipenser brevirostrum", "Acipenser oxyrinchus", "Albula vulpes",
 
 AllSpp <- c(SharkSpp, TurtleSpp, RaySpp, SealSpp, FishSpp)
 AllCladeNames <- c("Selachii", "Chelonioidea", "Batoidea", "Pinnipedia", "Actinopterygii")
+
+print(AllSpp[speciesNumber])
+
 # "Decapoda"
 AllCladeList <- c(rep("Selachii", times = length(SharkSpp)),
                   rep("Chelonioidea", times = length(TurtleSpp)),
@@ -102,8 +110,10 @@ AllCladeList <- c(rep("Selachii", times = length(SharkSpp)),
                   # ,
                   # rep("Decapoda", times = length(InvetSpp))
 )
-
-# Loop over spp indexes to import all matrices and add them to a list
+##############################################################################
+##############################################################################
+### import detection matrices and add them to a list
+##############################################################################
 spDetectList_Tel <- list()
 spDetectList_Obis <- list()
 GridDetEnvList_Obis <- list()
@@ -135,11 +145,6 @@ Grid_DetEnv <- read.table(file = "spOccupancy_MultiSpp_FullArea/Grid_DetCovs.txt
 # Grid_OccEnv <- read.table(file = "spOccupancy_MultiSpp_FullArea/Grid_OccEnv.txt", header = T)
 Grid_OccEnv <- read.table(file = "Grid_OccEnv_Seasonal.txt", header = T)
 
-## Code added by VZ: Save the objects we will need
-save(AllSpp, spDetectList_Tel, spDetectList_Obis, GridDetEnvList_Obis, Grid_OccEnv, 
-     Grid_DetEnv, Grid_DetEnv_Tel, FullGrid,
-     file=dataFile)
-
 ## Create an empty matrix to compute Bayesian p-value and k-fold estimates
 ModelValid <- as.data.frame(matrix(NA, nrow = 1, ncol = 6))
 
@@ -147,7 +152,10 @@ ModelValid <- as.data.frame(matrix(NA, nrow = 1, ncol = 6))
 colnames(ModelValid) <- c("spID", "Species", "k-fold.integ.tel", "k-fold.integ.obis",
                           "k-fold.tel.alone", "k-fold.obis.alone")
 
-## Loop over species
+##############################################################################
+##############################################################################
+### Generating detection / nondetection data 
+##############################################################################
 j <- speciesNumber
 print(glue("\n\n###### running for sp#{speciesNumber} ######"))
 ## Fill season months 
@@ -159,7 +167,7 @@ Grid_DetEnv_Obis <- GridDetEnvList_Obis[[j]] # May need add seasonal detection c
 GridCellsToRemove_Tel <- as.numeric(names(which((rowSums(is.na(SpDetectHistory_Tel)) == 6))))
 GridCellsToRemove_Obis <- as.numeric(names(which((rowSums(is.na(SpDetectHistory_Obis)) == 6))))
   
-# Telemetry
+# === grab Telemetry data
 sp.y.tel <- as.matrix(SpDetectHistory_Tel[!rowSums(is.na(SpDetectHistory_Tel)) == 6, ])
 coords.tel <- as.matrix(Grid_OccEnv[as.numeric(row.names(sp.y.tel)), c(1, 2)])
 occ.covs.tel <- as.matrix(Grid_OccEnv[as.numeric(row.names(sp.y.tel)), c(3:18)]) ##**Add depth later
@@ -171,7 +179,7 @@ Depth.tel <- -Depth.tel_RAW  # Invert values to allow a log transformation
 NReceiv.tel <- as.matrix((det.covs.tel[, 2]))
 sites.tel <- as.numeric(rownames(sp.y.tel))
   
-# Obis
+# === grab Obis data
 sp.y.obis <- as.matrix(SpDetectHistory_Obis[!rowSums(is.na(SpDetectHistory_Obis)) == 6, ])
 # sp.y.obis[is.na(sp.y.obis)] <- 0
 coords.obis <- as.matrix(Grid_OccEnv[as.numeric(row.names(sp.y.obis)), c(1, 2)])
@@ -183,14 +191,18 @@ Depth.obis <- -Depth.obis_RAW  # Invert values to allow a log transformation
 NLists.obis <- as.matrix((det.covs.obis[, 1]))
 NSppDetec.obis <- as.matrix((det.covs.obis[, 2]))
 sites.obis <- as.numeric(rownames(sp.y.obis))
-  
+##############################################################################
+##############################################################################
 ## Check the unique site IDs with data, detections and non-detections
+##############################################################################
 UniqueSites <- sort(unique(c(sites.obis, sites.tel)))
 print(glue("
   proportion: {length(UniqueSites)/dim(FullGrid)[1]}
 "))
   
+##############################################################################
 ## Rename unique and duplicated site IDs following a sequential order
+##############################################################################
 CellSeqIDs <- cbind("SeqID" = 1:length(UniqueSites), UniqueSites)
 OrigIDsTel <- as.numeric(rownames(sp.y.tel))
 OrigIDsObis <- as.numeric(rownames(sp.y.obis))
@@ -217,8 +229,10 @@ row.names(NSppDetec.obis) <- ObisIDs
 # row.names(Season.obis) <- ObisIDs
 sites.obis <- ObisIDs
   
-  
-## Create an integrated occupancy covariates matrix
+##############################################################################
+##############################################################################
+## Create an integrated occupancy covariates matrix for modeling predictors
+##############################################################################
 # occ.covs.int <- Grid_OccEnv[UniqueSites, 3, drop = FALSE]
 occ.covs.int <- Grid_OccEnv[UniqueSites, 3:18]   # Add depth
 occ.covs.int$Depth[occ.covs.int$Depth >= 0] <- -0.1 # Remove positive values
@@ -228,14 +242,17 @@ coords.int <- Grid_OccEnv[UniqueSites, c(1,2)]
 rownames(coords.int) <- CellSeqIDs[,1]
 # occ.covs.int <- Grid_OccEnv[ , 3, drop = FALSE]
 # coords.int <- Grid_OccEnv[ , c(1,2)]
-  
-  
+##############################################################################
+##############################################################################
 ## Merge datasets to run the integrated model
+##############################################################################
+# create detection / nondetection input for modeling
 y.int <- list(telemetry = sp.y.tel[,1:6], obis = sp.y.obis[,1:6])
 # y.int <- list(telemetry = sp.y.tel, obis = sp.y.obis)
 rownames(y.int$telemetry) <- 1:dim(y.int$telemetry)[1]
 rownames(y.int$obis) <- 1:dim(y.int$obis)[1]
-  
+
+# list of covariates
 det.covs.int <- list(telemetry = list("NReceiv" = NReceiv.tel, "Depth" = Depth.tel),
                      obis = list("NLists" = NLists.obis, "Depth" = Depth.obis, "NSppDetec" = NSppDetec.obis))
   
@@ -250,7 +267,10 @@ data.int <- list("y" = y.int,
 print("\n\n###### everything in one single list ######")
 str(data.int)
 
+##############################################################################
+##############################################################################
 ##### Run model
+##############################################################################
 print("\n\n###### running model...")
 occ.formula.int <- ~  scale(Depth) + scale(SST) +  I(scale(SST)^2) +
   scale(Chlor) + I(scale(Chlor)^2) + scale(TSM) + scale(SSH)
@@ -308,8 +328,11 @@ out.sp.int <- spIntPGOcc(occ.formula = occ.formula.int,
                          n.omp.threads = nThreads, # Within chain parallel running
                          batch.length = batch.length,
                          n.report = nReport)
-  
+
+##############################################################################
+##############################################################################
 ## Export output
+##############################################################################
 sink(file = paste("Output_", seasonName, "_", AllSpp[j],".txt", sep = ""))
 print(glue("\n\n###### exporting output for selected species: {AllSpp[j]} ######"))
 summary(out.sp.int)
@@ -317,18 +340,20 @@ sink(file = NULL)
   
 Waic <- waicOcc(out.sp.int)
 write.table(Waic, file = paste("testeWAIC_", seasonName, "_", AllSpp[j],".txt", sep = ""))
-  
-  
+##############################################################################  
+############################################################################## 
 #####################  Model validation  #########
-  
+##############################################################################  
 ## Model validation - Goodness of Fit (GoF) assessment (Bayesian p-value)
 print('\n\n###### performing model validation...')
 ppc.out.g1 <- ppcOcc(out.sp.int, fit.stat = 'freeman-tukey', group = 1)
 summary(ppc.out.g1)
-  
+##############################################################################
+##############################################################################
 ## Export output
-sink(file = paste("Bayesian_p-valueFull", seasonName, "_", AllSpp[j],".txt", sep = ""))
+##############################################################################
 print(glue("\n\n###### exporting output for sp {AllSpp[j]}"))
+sink(file = paste("Bayesian_p-valueFull", seasonName, "_", AllSpp[j],".txt", sep = ""))
 summary(ppc.out.g1)
 sink(file = NULL)
   
@@ -447,9 +472,10 @@ quantile(diff.fit.obis, probs = c(0.025, 0.975))
 # write.table(ModelValid, file = paste("kFoldCrossResults", seasonName, ".txt")
 # 
   
-##################################################
+##############################################################################
+##############################################################################
 #### Predict  ##########################
-  
+##############################################################################
 ## Predictions for the whole study area
 print("\n\n ###### creating predictions for the whole study area...")
 str(Grid_OccEnv)
@@ -465,7 +491,7 @@ SSH.pred <- (Grid_OccEnv[[SSH]] - mean(data.int$occ.covs[, predInd4])) / sd(data
 # X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, SSH.pred)  #Depth.pred
 X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, TSM.pred, SSH.pred)  #Depth.pred
 coords.0 <- as.matrix(Grid_OccEnv[, c('X', 'Y')])
-#print("\n\n###### head(X.0) :")
+print("\n\n###### head(X.0) :")
 print(head(X.0))
 out.sp.pred <- predict(out.sp.int, X.0, coords.0, verbose = FALSE) # Spatial
 # out.sp.pred <- predict(out.sp.int, X.0) # Non-spatial
@@ -479,8 +505,11 @@ plot.dat <- data.frame(x = Grid_OccEnv$X,
 
 class(FullGrid)
 plot.grid <- cbind(st_as_sf(FullGrid), plot.dat$mean.psi, plot.dat$sd.psi)
-
-## Export predictive map as shapefile
+##############################################################################
+##############################################################################
+## Export predictions
+##############################################################################
+## predictive map as shapefile
 print('\n\n###### exporting map as shapefile...')
 spName_shape <- chartr(" ", "_", AllSpp[j])
 file_name_shape = paste("SDM_Shape_", seasonName, "_", spName_shape, ".shp", sep="")
@@ -530,13 +559,7 @@ rm(out.sp.int, out.sp.pred, plot.dat, plot.grid, Z_sp)
 
 print(glue('j = {j}'))
   
-
-
-
-
-
-
-
+##############################################################################
 ###############################################################################
 ##########   Generate multi-species maps based on posterior Z  ################
 ###############################################################################
@@ -725,5 +748,5 @@ print(glue('j = {j}'))
 # ggsave(filename = paste(file_name_RichMean),
 #        plot =  MeanRichMap, width = 10, height = 9, units = 'cm',
 #        scale = 2, dpi = 100)
-
+###############################################################################
 print("\n\n###### done.")
