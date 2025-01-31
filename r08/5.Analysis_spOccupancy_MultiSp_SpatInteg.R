@@ -21,7 +21,7 @@ set.seed(102)
 ##############################################################################
 args <- commandArgs(trailingOnly = TRUE)
 seasonName <- args[1]
-speciesNumber <- args[2]
+speciesNumber <- as.integer(args[2])
 
 nThreads <- 4
 
@@ -99,8 +99,7 @@ FishSpp <- c("Acipenser brevirostrum", "Acipenser oxyrinchus", "Albula vulpes",
 AllSpp <- c(SharkSpp, TurtleSpp, RaySpp, SealSpp, FishSpp)
 AllCladeNames <- c("Selachii", "Chelonioidea", "Batoidea", "Pinnipedia", "Actinopterygii")
 
-print(AllSpp)  # test AllSpp is constructed list proper
-print(AllSpp[1])  # is this NA? If so: try loading sp from text file?
+print(AllSpp[speciesNumber])
 
 # "Decapoda"
 AllCladeList <- c(rep("Selachii", times = length(SharkSpp)),
