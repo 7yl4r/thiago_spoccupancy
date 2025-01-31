@@ -98,6 +98,10 @@ FishSpp <- c("Acipenser brevirostrum", "Acipenser oxyrinchus", "Albula vulpes",
 
 AllSpp <- c(SharkSpp, TurtleSpp, RaySpp, SealSpp, FishSpp)
 AllCladeNames <- c("Selachii", "Chelonioidea", "Batoidea", "Pinnipedia", "Actinopterygii")
+
+print(AllSpp)  # test AllSpp is constructed list proper
+print(AllSpp[1])  # is this NA? If so: try loading sp from text file?
+
 # "Decapoda"
 AllCladeList <- c(rep("Selachii", times = length(SharkSpp)),
                   rep("Chelonioidea", times = length(TurtleSpp)),
