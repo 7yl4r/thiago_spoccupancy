@@ -109,7 +109,7 @@ AllCladeList <- c(rep("Selachii", times = length(SharkSpp)),
 )
 ##############################################################################
 ##############################################################################
-### Loop over spp indexes to import all matrices and add them to a list
+### import detection matrices and add them to a list
 ##############################################################################
 spDetectList_Tel <- list()
 spDetectList_Obis <- list()
@@ -141,11 +141,6 @@ Grid_DetEnv <- read.table(file = "spOccupancy_MultiSpp_FullArea/Grid_DetCovs.txt
 ## Import data on occupancy covariates and full detect covariates  *Figure out why depth is not in the matrix
 # Grid_OccEnv <- read.table(file = "spOccupancy_MultiSpp_FullArea/Grid_OccEnv.txt", header = T)
 Grid_OccEnv <- read.table(file = "Grid_OccEnv_Seasonal.txt", header = T)
-
-## Code added by VZ: Save the objects we will need
-save(AllSpp, spDetectList_Tel, spDetectList_Obis, GridDetEnvList_Obis, Grid_OccEnv, 
-     Grid_DetEnv, Grid_DetEnv_Tel, FullGrid,
-     file=dataFile)
 
 ## Create an empty matrix to compute Bayesian p-value and k-fold estimates
 ModelValid <- as.data.frame(matrix(NA, nrow = 1, ncol = 6))
