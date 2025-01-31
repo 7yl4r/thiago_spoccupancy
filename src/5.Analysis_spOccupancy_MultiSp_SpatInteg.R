@@ -5,10 +5,12 @@
 ########       Single-species spatial integrated  occupancy      #############
 ########                Multiple species aggregations            #############
 ##############################################################################
+## Upload package and organize A-BioTrack data 
+##############################################################################
+start_time <- Sys.time()
 ##############################################################################
 ### imports
 ##############################################################################
-## Upload package and organize A-BioTrack data 
 library(spOccupancy)
 library(coda)
 library(stars)
@@ -270,7 +272,10 @@ str(data.int)
 ##############################################################################
 ##############################################################################
 ##### Run model
+<<<<<<< Updated upstream
 ##############################################################################
+=======
+>>>>>>> Stashed changes
 print("\n\n###### running model...")
 occ.formula.int <- ~  scale(Depth) + scale(SST) +  I(scale(SST)^2) +
   scale(Chlor) + I(scale(Chlor)^2) + scale(TSM) + scale(SSH)
@@ -354,6 +359,10 @@ summary(ppc.out.g1)
 ##############################################################################
 print(glue("\n\n###### exporting output for sp {AllSpp[j]}"))
 sink(file = paste("Bayesian_p-valueFull", seasonName, "_", AllSpp[j],".txt", sep = ""))
+<<<<<<< Updated upstream
+=======
+print(glue("\n\n###### exporting output for sp {AllSpp[j]}"))
+>>>>>>> Stashed changes
 summary(ppc.out.g1)
 sink(file = NULL)
   
@@ -491,7 +500,11 @@ SSH.pred <- (Grid_OccEnv[[SSH]] - mean(data.int$occ.covs[, predInd4])) / sd(data
 # X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, SSH.pred)  #Depth.pred
 X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, TSM.pred, SSH.pred)  #Depth.pred
 coords.0 <- as.matrix(Grid_OccEnv[, c('X', 'Y')])
+<<<<<<< Updated upstream
 print("\n\n###### head(X.0) :")
+=======
+#print("\n\n###### head(X.0) :")
+>>>>>>> Stashed changes
 print(head(X.0))
 out.sp.pred <- predict(out.sp.int, X.0, coords.0, verbose = FALSE) # Spatial
 # out.sp.pred <- predict(out.sp.int, X.0) # Non-spatial
@@ -505,11 +518,16 @@ plot.dat <- data.frame(x = Grid_OccEnv$X,
 
 class(FullGrid)
 plot.grid <- cbind(st_as_sf(FullGrid), plot.dat$mean.psi, plot.dat$sd.psi)
+<<<<<<< Updated upstream
 ##############################################################################
 ##############################################################################
 ## Export predictions
 ##############################################################################
 ## predictive map as shapefile
+=======
+
+## Export predictive map as shapefile
+>>>>>>> Stashed changes
 print('\n\n###### exporting map as shapefile...')
 spName_shape <- chartr(" ", "_", AllSpp[j])
 file_name_shape = paste("SDM_Shape_", seasonName, "_", spName_shape, ".shp", sep="")
@@ -748,5 +766,10 @@ print(glue('j = {j}'))
 # ggsave(filename = paste(file_name_RichMean),
 #        plot =  MeanRichMap, width = 10, height = 9, units = 'cm',
 #        scale = 2, dpi = 100)
-###############################################################################
+
+end_time <- Sys.time()
+execution_time <- end_time - start_time
+print(paste("\n\n Execution time:", execution_time))
+
 print("\n\n###### done.")
+
