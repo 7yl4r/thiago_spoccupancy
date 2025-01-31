@@ -5,7 +5,9 @@
 ########       Single-species spatial integrated  occupancy      #############
 ########                Multiple species aggregations            #############
 ##############################################################################
-
+##############################################################################
+### imports
+##############################################################################
 ## Upload package and organize A-BioTrack data 
 library(spOccupancy)
 library(coda)
@@ -13,7 +15,10 @@ library(stars)
 library(ggplot2)
 library(glue)
 set.seed(102)
-
+##############################################################################
+##############################################################################
+### read command line arguments
+##############################################################################
 args <- commandArgs(trailingOnly = TRUE)
 seasonName <- args[1]
 speciesNumber <- args[2]
@@ -55,15 +60,15 @@ if (seasonName == "winter") {
   # Exit with an error if the input is invalid
   stop("Error: Invalid season. Please specify 'winter' or 'summer'.", call. = FALSE)
 }
-
-
-
-
-
-
-## Upload Grid data for mapping
+##############################################################################
+##############################################################################
+### Read Grid data for mapping
+##############################################################################
 FullGrid <- st_read("Shapes/FullDataGrid.shp")
-
+##############################################################################
+##############################################################################
+### make list of all species
+##############################################################################
 SharkSpp <- c("Alopias vulpinus", "Carcharhinus acronotus", "Carcharhinus brevipinna", "Carcharhinus leucas",
               "Carcharhinus limbatus", "Carcharhinus obscurus", "Carcharhinus perezii", "Carcharhinus plumbeus",
               "Carcharias taurus", "Galeocerdo cuvier", "Ginglymostoma cirratum", "Isurus oxyrinchus",
@@ -102,8 +107,10 @@ AllCladeList <- c(rep("Selachii", times = length(SharkSpp)),
                   # ,
                   # rep("Decapoda", times = length(InvetSpp))
 )
-
-# Loop over spp indexes to import all matrices and add them to a list
+##############################################################################
+##############################################################################
+### Loop over spp indexes to import all matrices and add them to a list
+##############################################################################
 spDetectList_Tel <- list()
 spDetectList_Obis <- list()
 GridDetEnvList_Obis <- list()
@@ -327,8 +334,8 @@ ppc.out.g1 <- ppcOcc(out.sp.int, fit.stat = 'freeman-tukey', group = 1)
 summary(ppc.out.g1)
   
 ## Export output
-sink(file = paste("Bayesian_p-valueFull", seasonName, "_", AllSpp[j],".txt", sep = ""))
 print(glue("\n\n###### exporting output for sp {AllSpp[j]}"))
+sink(file = paste("Bayesian_p-valueFull", seasonName, "_", AllSpp[j],".txt", sep = ""))
 summary(ppc.out.g1)
 sink(file = NULL)
   
@@ -465,7 +472,7 @@ SSH.pred <- (Grid_OccEnv[[SSH]] - mean(data.int$occ.covs[, predInd4])) / sd(data
 # X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, SSH.pred)  #Depth.pred
 X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, TSM.pred, SSH.pred)  #Depth.pred
 coords.0 <- as.matrix(Grid_OccEnv[, c('X', 'Y')])
-#print("\n\n###### head(X.0) :")
+print("\n\n###### head(X.0) :")
 print(head(X.0))
 out.sp.pred <- predict(out.sp.int, X.0, coords.0, verbose = FALSE) # Spatial
 # out.sp.pred <- predict(out.sp.int, X.0) # Non-spatial
