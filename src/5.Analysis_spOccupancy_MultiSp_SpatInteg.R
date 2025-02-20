@@ -31,33 +31,25 @@ print(glue(" ###### sp.{speciesNumber} | {seasonName} ######"))
 # Perform actions based on the value of season
 if (seasonName == "winter") {
   print("It's winter! Time to stay cozy and warm.")
-  # Winter = (Nov to April)
+  # Winter = (Nov to Feb)
   dataFile <- "DataWinter.RData"
-  season <- c(11:12,1:4)
+  season <- c(11:12,1:2)
   SST <- 'SST_w'
   CHLOR <- 'Chlor_w'
   TSM <- 'TSM_w'
   SSH <- 'SSH_w'
   nReport <- 500
-  predInd1 <- 4
-  predInd2 <- 7
-  predInd3 <- 10
-  predInd4 <- 16
 } else if (seasonName == "summer") {
   print("It's summer! Let's enjoy the sun and go to the beach.")
-
-  # Summer = (May to October)
+  
+  # Summer = (May to August)
   dataFile <- "DataSummer.RData"
-  season <- c(5:10)
+  season <- c(5:8)
   SST <- 'SST_s'
   CHLOR <- 'Chlor_s'
   TSM <- 'TSM_s'
   SSH <- 'SSH_s'
-  nReport <- 100
-  predInd1 <- 3
-  predInd2 <- 6
-  predInd3 <- 9
-  predInd4 <- 15
+  nReport <- 500
 } else {
   # Exit with an error if the input is invalid
   stop("Error: Invalid season. Please specify 'winter' or 'summer'.", call. = FALSE)
@@ -127,33 +119,19 @@ objName.tel <- paste ("sp",i ,".tel", sep = "")
 fileName.tel <- paste ("spOccupancy_MultiSpp_FullArea/MultiSpp_DetHist_Sp",i ,".txt", sep = "")
 file.tel <- read.table(file = fileName.tel , header = T)
 spDetectList_Tel[[i]] <- assign(objName.tel, value = file.tel)
-  
+
 objName.obis <- paste ("sp",i ,".obis", sep = "")
 fileName.obis <- paste ("spOccupancy_MultiSpp_FullArea/MultiSpp_ObisHist_Sp",i ,".txt", sep = "")
 file.obis <- read.table(file = fileName.obis , header = T)
 spDetectList_Obis[[i]] <- assign(objName.obis, value = file.obis)
-  
+
 objName.detcov.obis <- paste ("Grid_DetEnv_Obis_sp",i, sep = "")
 fileName.detcov.obis <- paste ("spOccupancy_MultiSpp_FullArea/MultiSpp_OBIS_DetectCovs_Sp",i ,".txt", sep = "")
 file.detcov.obis <- read.table(file = fileName.detcov.obis , header = T)
 GridDetEnvList_Obis[[i]] <- assign(objName.detcov.obis, value = file.detcov.obis)
 
-## Import Detection Covs   *Add later OBIS det covs per species
-Grid_DetEnv_Tel <- read.table(file = "spOccupancy_MultiSpp_FullArea/Grid_DetCovs.txt", header = T)
-# Grid_DetEnv_Obis <- read.table(file = "spOccupancy_MultiSpp_FullArea/MultiSpp_OBIS_DetectCovs_Sp7.txt", header = T)
-Grid_DetEnv <- read.table(file = "spOccupancy_MultiSpp_FullArea/Grid_DetCovs.txt", header = T)
-
-## Import data on occupancy covariates and full detect covariates  *Figure out why depth is not in the matrix
-# Grid_OccEnv <- read.table(file = "spOccupancy_MultiSpp_FullArea/Grid_OccEnv.txt", header = T)
-Grid_OccEnv <- read.table(file = "Grid_OccEnv_Seasonal.txt", header = T)
-
-## Create an empty matrix to compute Bayesian p-value and k-fold estimates
-ModelValid <- as.data.frame(matrix(NA, nrow = 1, ncol = 6))
-
-#print(glue("\n\n###### column names for estimates:"))
-colnames(ModelValid) <- c("spID", "Species", "k-fold.integ.tel", "k-fold.integ.obis",
-                          "k-fold.tel.alone", "k-fold.obis.alone")
-
+## Import telemetry Detection AND occupancy Covs   *Add later OBIS det covs per species
+Grid_DetEnv_Tel_Seasonal <- read.table(file = "spOccupancy_MultiSpp_FullArea/Grid_DetCovs_Seasonal.txt", header = T)
 ##############################################################################
 ##############################################################################
 ### Generating detection / nondetection data 
@@ -161,32 +139,32 @@ colnames(ModelValid) <- c("spID", "Species", "k-fold.integ.tel", "k-fold.integ.o
 j <- speciesNumber
 print(glue("\n\n###### running for sp#{speciesNumber} ######"))
 ## Fill season months 
-SpDetectHistory_Tel <- spDetectList_Tel[[j]][,season]
-SpDetectHistory_Obis <- spDetectList_Obis[[j]][,season]
-Grid_DetEnv_Obis <- GridDetEnvList_Obis[[j]] # May need add seasonal detection covs in the future
-  
+SpDetectHistory_Tel <- spDetectList_Tel[[i]][,season]
+SpDetectHistory_Obis <- spDetectList_Obis[[i]][,season]
+Grid_DetEnv_Obis <- GridDetEnvList_Obis[[i]] # May need add seasonal detection covs in the future
+
 ## Filter data and keep just the grids where the species can be detected 
-GridCellsToRemove_Tel <- as.numeric(names(which((rowSums(is.na(SpDetectHistory_Tel)) == 6))))
-GridCellsToRemove_Obis <- as.numeric(names(which((rowSums(is.na(SpDetectHistory_Obis)) == 6))))
-  
+GridCellsToRemove_Tel <- as.numeric(names(which((rowSums(is.na(SpDetectHistory_Tel)) == 4))))
+GridCellsToRemove_Obis <- as.numeric(names(which((rowSums(is.na(SpDetectHistory_Obis)) == 4))))
+
 # === grab Telemetry data
-sp.y.tel <- as.matrix(SpDetectHistory_Tel[!rowSums(is.na(SpDetectHistory_Tel)) == 6, ])
-coords.tel <- as.matrix(Grid_OccEnv[as.numeric(row.names(sp.y.tel)), c(1, 2)])
-occ.covs.tel <- as.matrix(Grid_OccEnv[as.numeric(row.names(sp.y.tel)), c(3:18)]) ##**Add depth later
-det.covs.tel <- as.matrix(Grid_DetEnv_Tel[as.numeric(row.names(sp.y.tel)), c(1,8)])
+sp.y.tel <- as.matrix(SpDetectHistory_Tel[!rowSums(is.na(SpDetectHistory_Tel)) == 4, ])
+coords.tel <- as.matrix(Grid_DetEnv_Tel_Seasonal[as.numeric(row.names(sp.y.tel)), c(1, 2)])
+occ.covs.tel <- as.matrix(Grid_DetEnv_Tel_Seasonal[as.numeric(row.names(sp.y.tel)), c(3:18)]) 
+det.covs.tel <- as.matrix(Grid_DetEnv_Tel_Seasonal[as.numeric(row.names(sp.y.tel)), c(1,19)])
 # Depth.tel <- as.matrix((det.covs.tel[, 1]))
-Depth.tel_RAW <- as.matrix(Grid_OccEnv[as.numeric(row.names(sp.y.tel)), "Depth"]) ##Add depth into detection covs
+Depth.tel_RAW <- as.matrix(Grid_DetEnv_Tel_Seasonal[as.numeric(row.names(sp.y.tel)), "Depth"]) ##Add depth into detection covs
 Depth.tel_RAW[Depth.tel_RAW >= 0] <- -0.1   # Remove positive values
 Depth.tel <- -Depth.tel_RAW  # Invert values to allow a log transformation
 NReceiv.tel <- as.matrix((det.covs.tel[, 2]))
 sites.tel <- as.numeric(rownames(sp.y.tel))
-  
+
 # === grab Obis data
-sp.y.obis <- as.matrix(SpDetectHistory_Obis[!rowSums(is.na(SpDetectHistory_Obis)) == 6, ])
+sp.y.obis <- as.matrix(SpDetectHistory_Obis[!rowSums(is.na(SpDetectHistory_Obis)) == 4, ])
 # sp.y.obis[is.na(sp.y.obis)] <- 0
-coords.obis <- as.matrix(Grid_OccEnv[as.numeric(row.names(sp.y.obis)), c(1, 2)])
-occ.covs.obis <- as.matrix(Grid_OccEnv[as.numeric(row.names(sp.y.obis)), c(3:18)]) ##**Add depth later
-det.covs.obis <- as.matrix(Grid_DetEnv_Obis[!rowSums(is.na(SpDetectHistory_Obis)) == 6, c(1,2)])
+coords.obis <- as.matrix(Grid_DetEnv_Tel_Seasonal[as.numeric(row.names(sp.y.obis)), c(1, 2)])
+occ.covs.obis <- as.matrix(Grid_DetEnv_Tel_Seasonal[as.numeric(row.names(sp.y.obis)), c(3:18)]) ##**Add depth later
+det.covs.obis <- as.matrix(Grid_DetEnv_Obis[!rowSums(is.na(SpDetectHistory_Obis)) == 4, c(1,2)])
 Depth.obis_RAW <- as.matrix((occ.covs.obis[, 1]))
 Depth.obis_RAW[Depth.obis_RAW >= 0] <- -0.1  # Remove positive values
 Depth.obis <- -Depth.obis_RAW  # Invert values to allow a log transformation
@@ -199,9 +177,9 @@ sites.obis <- as.numeric(rownames(sp.y.obis))
 ##############################################################################
 UniqueSites <- sort(unique(c(sites.obis, sites.tel)))
 print(glue("
-  proportion: {length(UniqueSites)/dim(FullGrid)[1]}
-"))
-  
+    proportion: {length(UniqueSites)/dim(FullGrid)[1]}
+  "))
+
 ##############################################################################
 ## Rename unique and duplicated site IDs following a sequential order
 ##############################################################################
@@ -235,22 +213,23 @@ sites.obis <- ObisIDs
 ##############################################################################
 ## Create an integrated occupancy covariates matrix for modeling predictors
 ##############################################################################
-# occ.covs.int <- Grid_OccEnv[UniqueSites, 3, drop = FALSE]
-occ.covs.int <- Grid_OccEnv[UniqueSites, 3:18]   # Add depth
+if(seasonName == 'summer'){
+  occ.covs.int <- Grid_DetEnv_Tel_Seasonal[UniqueSites, c('Depth', 'SST_s', "Chlor_s", "TSM_s", "SSH_s")]
+} else{
+  occ.covs.int <- Grid_DetEnv_Tel_Seasonal[UniqueSites, c('Depth', 'SST_w', "Chlor_w", "TSM_w", "SSH_w")]
+}
+colnames(occ.covs.int) <- c('Depth', 'SST', "Chlor", "TSM", "SSH") #put original names back so we don't need to change in the model
 occ.covs.int$Depth[occ.covs.int$Depth >= 0] <- -0.1 # Remove positive values
 occ.covs.int$Depth <- -occ.covs.int$Depth # Convert depth to positve
 rownames(occ.covs.int) <- CellSeqIDs[,1]
-coords.int <- Grid_OccEnv[UniqueSites, c(1,2)]
+coords.int <- Grid_DetEnv_Tel_Seasonal[UniqueSites, c(1,2)]
 rownames(coords.int) <- CellSeqIDs[,1]
-# occ.covs.int <- Grid_OccEnv[ , 3, drop = FALSE]
-# coords.int <- Grid_OccEnv[ , c(1,2)]
 ##############################################################################
 ##############################################################################
 ## Merge datasets to run the integrated model
 ##############################################################################
 # create detection / nondetection input for modeling
-y.int <- list(telemetry = sp.y.tel[,1:6], obis = sp.y.obis[,1:6])
-# y.int <- list(telemetry = sp.y.tel, obis = sp.y.obis)
+y.int <- list(telemetry = sp.y.tel[,1:4], obis = sp.y.obis[,1:4])
 rownames(y.int$telemetry) <- 1:dim(y.int$telemetry)[1]
 rownames(y.int$obis) <- 1:dim(y.int$obis)[1]
 
@@ -306,10 +285,10 @@ prior.list <- list(beta.normal = list(mean = 0, var = 2.72),
                    phi.unif = c(3 / max.dist, 3 / min.dist))
   
 ## Model settings - Spatial
-batch.length <- 80  # Samples per chain = batch length * n.batch
-n.batch <- 4000
-n.burn <- 150000
-n.thin <- 200
+batch.length <- 10#80  # Samples per chain = batch length * n.batch
+n.batch <- 40#00
+n.burn <- 10#150000
+n.thin <- 2#00
 tuning <- list(phi = 0.2)
   
 ## Run model - Spatial
@@ -335,6 +314,9 @@ out.sp.int <- spIntPGOcc(occ.formula = occ.formula.int,
 ##############################################################################
 ## Export output
 ##############################################################################
+#export full model output in .RData
+saveRDS(out.sp.int, file = paste0("Results/ModelFileOutput-", seasonName, "_", AllSpp[j], ".rds"))
+
 sink(file = paste("Output_", seasonName, "_", AllSpp[j],".txt", sep = ""))
 print(glue("\n\n###### exporting output for selected species: {AllSpp[j]} ######"))
 summary(out.sp.int)
@@ -356,7 +338,9 @@ summary(ppc.out.g1)
 ##############################################################################
 print(glue("\n\n###### exporting output for sp {AllSpp[j]}"))
 sink(file = paste("Bayesian_p-valueFull", seasonName, "_", AllSpp[j],".txt", sep = ""))
+
 print(glue("\n\n###### exporting output for sp {AllSpp[j]}"))
+
 summary(ppc.out.g1)
 sink(file = NULL)
   
@@ -382,26 +366,7 @@ plot(ppc.df$fit, ppc.df$fit.rep, bg = ppc.df$color, pch = 21,
 lines(ppc.df$fit, ppc.df$fit, col = 'black')
   
 dev.off()
-  
-ModelValid[j,1] <- j
-ModelValid[j,2] <- AllSpp[j]
-#ModelValid[j,3] <- ppc.out.g1$fit.y.rep
-ppc.df$color[ppc.df$fit.rep > ppc.df$fit]
-  
-diff.fit.tel <- ppc.out.g1$fit.y.rep.group.quants[[1]][3, ] - ppc.out.g1$fit.y.group.quants[[1]][3, ]
-plot(diff.fit.tel, pch = 19, xlab = 'Site ID', ylab = 'Replicate - True Discrepancy')
-  
-diff.fit.obis <- ppc.out.g1$fit.y.rep.group.quants[[2]][3, ] - ppc.out.g1$fit.y.group.quants[[2]][3, ]
-plot(diff.fit.obis, pch = 19, xlab = 'Site ID', ylab = 'Replicate - True Discrepancy')
-  
-  
-boxplot(diff.fit.tel, diff.fit.obis)
-mean(diff.fit.tel)
-quantile(diff.fit.tel, probs = c(0.025, 0.975))
-  
-mean(diff.fit.obis)
-quantile(diff.fit.obis, probs = c(0.025, 0.975))
-  
+
   
 ######## k-fold cross-validation
 ## Integrated model (Spatial)
@@ -481,28 +446,28 @@ quantile(diff.fit.obis, probs = c(0.025, 0.975))
 ##############################################################################
 ## Predictions for the whole study area
 print("\n\n ###### creating predictions for the whole study area...")
-str(Grid_OccEnv)
-DepthNeg <- Grid_OccEnv$Depth
+str(Grid_DetEnv_Tel_Seasonal)
+DepthNeg <- Grid_DetEnv_Tel_Seasonal$Depth
 DepthNeg[DepthNeg >= 0] <- -0.1
 DepthTrans <- -DepthNeg
 Depth.pred <- (DepthTrans - mean(data.int$occ.covs[, 1])) / sd(data.int$occ.covs[, 1])  ## Add depth
-SST.pred <- (Grid_OccEnv[[SST]] - mean(data.int$occ.covs[, predInd1])) / sd(data.int$occ.covs[, predInd1])
-Chlor.pred <- (Grid_OccEnv[[CHLOR]] - mean(data.int$occ.covs[, predInd2])) / sd(data.int$occ.covs[, predInd2])
-TSM.pred <- (Grid_OccEnv[[TSM]] - mean(data.int$occ.covs[, predInd3])) / sd(data.int$occ.covs[, predInd3])
-SSH.pred <- (Grid_OccEnv[[SSH]] - mean(data.int$occ.covs[, predInd4])) / sd(data.int$occ.covs[, predInd4])
+SST.pred <- (Grid_DetEnv_Tel_Seasonal[[SST]] - mean(data.int$occ.covs[, 'SST'])) / sd(data.int$occ.covs[, 'SST'])
+Chlor.pred <- (Grid_DetEnv_Tel_Seasonal[[CHLOR]] - mean(data.int$occ.covs[, 'Chlor'])) / sd(data.int$occ.covs[, 'Chlor'])
+TSM.pred <- (Grid_DetEnv_Tel_Seasonal[[TSM]] - mean(data.int$occ.covs[, 'TSM'])) / sd(data.int$occ.covs[, 'TSM'])
+SSH.pred <- (Grid_DetEnv_Tel_Seasonal[[SSH]] - mean(data.int$occ.covs[, 'SSH'])) / sd(data.int$occ.covs[, 'SSH'])
 # These are the new intercept and covariate data.
-# X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, SSH.pred)  #Depth.pred
-X.0 <- cbind(1, Depth.pred, SST.pred,  SST.pred^2, Chlor.pred, Chlor.pred^2, TSM.pred, SSH.pred)  #Depth.pred
-coords.0 <- as.matrix(Grid_OccEnv[, c('X', 'Y')])
-#print("\n\n###### head(X.0) :")
+#create a named data frame 
+X.0 <- cbind(1, Depth.pred=Depth.pred, SST.pred=SST.pred,  SST.pred.sqrt=SST.pred^2, 
+             Chlor.pred=Chlor.pred, Chlor.pred.sqrt=Chlor.pred^2, TSM.pred=TSM.pred, SSH.pred=SSH.pred)
+coords.0 <- as.matrix(Grid_DetEnv_Tel_Seasonal[, c('X', 'Y')])
+print("\n\n###### head(X.0) :")
 print(head(X.0))
 out.sp.pred <- predict(out.sp.int, X.0, coords.0, verbose = FALSE) # Spatial
-# out.sp.pred <- predict(out.sp.int, X.0) # Non-spatial
 
 # Produce a species distribution map (posterior predictive means of occupancy)
 print('\n\n###### creating species dist map...')
-plot.dat <- data.frame(x = Grid_OccEnv$X,
-                       y = Grid_OccEnv$Y,
+plot.dat <- data.frame(x = Grid_DetEnv_Tel_Seasonal$X,
+                       y = Grid_DetEnv_Tel_Seasonal$Y,
                        mean.psi = apply(out.sp.pred$psi.0.samples, 2, mean),
                        sd.psi = apply(out.sp.pred$psi.0.samples, 2, sd))
 
@@ -513,6 +478,8 @@ plot.grid <- cbind(st_as_sf(FullGrid), plot.dat$mean.psi, plot.dat$sd.psi)
 ## Export predictions
 ##############################################################################
 ## predictive map as shapefile
+
+## Export predictive map as shapefile
 print('\n\n###### exporting map as shapefile...')
 spName_shape <- chartr(" ", "_", AllSpp[j])
 file_name_shape = paste("SDM_Shape_", seasonName, "_", spName_shape, ".shp", sep="")
