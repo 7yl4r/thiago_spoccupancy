@@ -285,10 +285,10 @@ prior.list <- list(beta.normal = list(mean = 0, var = 2.72),
                    phi.unif = c(3 / max.dist, 3 / min.dist))
   
 ## Model settings - Spatial
-batch.length <- 10#80  # Samples per chain = batch length * n.batch
-n.batch <- 40#00
-n.burn <- 10#150000
-n.thin <- 2#00
+batch.length <- 80  # Samples per chain = batch length * n.batch
+n.batch <- 4000
+n.burn <- 150000
+n.thin <- 200
 tuning <- list(phi = 0.2)
   
 ## Run model - Spatial
@@ -724,4 +724,3 @@ execution_time <- end_time - start_time
 print(paste("\n\n Execution time:", execution_time))
 
 print("\n\n###### done.")
-
