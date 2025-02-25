@@ -304,9 +304,9 @@ prior.list <- list(beta.normal = list(mean = 0, var = 2.72),
   
 ## Model settings - Spatial
 batch.length <- 80  # Samples per chain = batch length * n.batch
-n.batch <- 4#000
-n.burn <- 150#000
-n.thin <- 2#00
+n.batch <- 4000
+n.burn <- 150000
+n.thin <- 200
 tuning <- list(phi = 0.2)
   
 ## Run model - Spatial
