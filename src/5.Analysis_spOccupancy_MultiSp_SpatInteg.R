@@ -39,6 +39,10 @@ if (seasonName == "winter") {
   TSM <- 'TSM_w'
   SSH <- 'SSH_w'
   nReport <- 500
+  # predInd1 <- 4
+  # predInd2 <- 7
+  # predInd3 <- 10
+  # predInd4 <- 16
 } else if (seasonName == "summer") {
   print("It's summer! Let's enjoy the sun and go to the beach.")
   
@@ -50,6 +54,10 @@ if (seasonName == "winter") {
   TSM <- 'TSM_s'
   SSH <- 'SSH_s'
   nReport <- 500
+  # predInd1 <- 3
+  # predInd2 <- 6
+  # predInd3 <- 9
+  # predInd4 <- 15
 } else {
   # Exit with an error if the input is invalid
   stop("Error: Invalid season. Please specify 'winter' or 'summer'.", call. = FALSE)
@@ -63,6 +71,7 @@ FullGrid <- st_read("Shapes/FullDataGrid.shp")
 ##############################################################################
 ### make list of all species
 ##############################################################################
+
 SharkSpp <- c("Alopias vulpinus", "Carcharhinus acronotus", "Carcharhinus brevipinna", "Carcharhinus leucas",
               "Carcharhinus limbatus", "Carcharhinus obscurus", "Carcharhinus perezii", "Carcharhinus plumbeus",
               "Carcharias taurus", "Galeocerdo cuvier", "Ginglymostoma cirratum", "Isurus oxyrinchus",
@@ -75,35 +84,44 @@ RaySpp <- c("Bathytoshia centroura", "Hypanus americanus", "Hypanus sabinus",  "
 
 SealSpp <- c("Halichoerus grypus")
 
-FishSpp <- c("Acipenser brevirostrum", "Acipenser oxyrinchus", "Albula vulpes",
-             "Alosa aestivalis", "Alosa pseudoharengus", "Alosa sapidissima",
-             "Archosargus probatocephalus", "Centropomus undecimalis", "Centropristis striata",
-             "Cynoscion nebulosus", "Cynoscion regalis",
-             "Epinephelus adscensionis", "Epinephelus guttatus", "Epinephelus itajara",
-             "Epinephelus morio", "Epinephelus striatus", "Gadus morhua",
-             "Lachnolaimus maximus", "Lutjanus analis", "Lutjanus apodus",
-             "Lutjanus griseus", "Lutjanus jocu", "Megalops atlanticus",
-             "Micropterus salmoides", "Morone saxatilis", "Mugil cephalus",
-             "Mycteroperca bonaci", "Mycteroperca interstitialis", "Mycteroperca microlepis",
-             "Mycteroperca phenax", "Mycteroperca venenosa", "Ocyurus chrysurus",
-             "Paralichthys dentatus", "Paralichthys lethostigma", "Pseudopleuronectes americanus",
-             "Pterois volitans", "Rachycentron canadum", "Sciaenops ocellatus",
-             "Sphyraena barracuda", "Trachinotus falcatus")
+ForageFishSpp <-  c("Alosa aestivalis", "Alosa pseudoharengus", "Alosa sapidissima",
+                    "Mugil cephalus")
 
-AllSpp <- c(SharkSpp, TurtleSpp, RaySpp, SealSpp, FishSpp)
-AllCladeNames <- c("Selachii", "Chelonioidea", "Batoidea", "Pinnipedia", "Actinopterygii")
+SturgeonFishSpp <- c("Acipenser brevirostrum", "Acipenser oxyrinchus")
+
+ReefFishSpp <- c("Archosargus probatocephalus", "Epinephelus adscensionis", "Epinephelus guttatus",
+                 "Epinephelus itajara", "Epinephelus morio", "Epinephelus striatus", "Lutjanus analis",
+                 "Lutjanus apodus", "Lutjanus griseus", "Lutjanus jocu", "Lachnolaimus maximus",
+                 "Mycteroperca bonaci", "Mycteroperca interstitialis","Mycteroperca microlepis",
+                 "Mycteroperca phenax", "Mycteroperca venenosa", "Pterois volitans",
+                 "Ocyurus chrysurus", "Sphyraena barracuda")
+
+GroundFishSpp <- c("Centropristis striata", "Gadus morhua", "Paralichthys dentatus", "Paralichthys lethostigma",
+                   "Pseudopleuronectes americanus")
+
+SportFishSpp <- c("Albula vulpes", "Centropomus undecimalis", "Cynoscion nebulosus", "Cynoscion regalis",
+                  "Megalops atlanticus", "Morone saxatilis", "Rachycentron canadum", "Sciaenops ocellatus",
+                  "Seriola dumerili", "Trachinotus falcatus")
+
+FishSpp <- c(SturgeonFishSpp, ReefFishSpp, GroundFishSpp, SportFishSpp)
+
+InvetSpp <- c("Limulus polyphemus") #Decapoda
+
+AllSpp <- c(SharkSpp, TurtleSpp, RaySpp, SealSpp, ForageFishSpp, FishSpp, InvetSpp)
+
+AllCladeList <- c(rep("Shark", times = length(SharkSpp)),
+                  rep("Turtle", times = length(TurtleSpp)),
+                  rep("Ray", times = length(RaySpp)),
+                  rep("Seal", times = length(SealSpp)),
+                  rep("ForageFish", times = length(ForageFishSpp)),
+                  rep("GameFish", times = length(FishSpp)),
+                  rep("Invert", times = length(InvetSpp)))
+
+AllCladeNames <- unique(AllCladeList)
 
 print(AllSpp[speciesNumber])
 
-# "Decapoda"
-AllCladeList <- c(rep("Selachii", times = length(SharkSpp)),
-                  rep("Chelonioidea", times = length(TurtleSpp)),
-                  rep("Batoidea", times = length(RaySpp)),
-                  rep("Pinnipedia", times = length(SealSpp)),
-                  rep("Actinopterygii", times = length(FishSpp))
-                  # ,
-                  # rep("Decapoda", times = length(InvetSpp))
-)
+
 ##############################################################################
 ##############################################################################
 ### import detection matrices and add them to a list
@@ -306,7 +324,7 @@ out.sp.int <- spIntPGOcc(occ.formula = occ.formula.int,
                          n.burn = n.burn,
                          n.chains = 3,
                          n.thin = n.thin,
-                         n.omp.threads = nThreads, # Within chain parallel running
+                         #n.omp.threads = nThreads, # Within chain parallel running
                          batch.length = batch.length,
                          n.report = nReport)
 
@@ -724,3 +742,4 @@ execution_time <- end_time - start_time
 print(paste("\n\n Execution time:", execution_time))
 
 print("\n\n###### done.")
+
