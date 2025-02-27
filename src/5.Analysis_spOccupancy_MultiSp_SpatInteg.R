@@ -332,6 +332,9 @@ out.sp.int <- spIntPGOcc(occ.formula = occ.formula.int,
 ##############################################################################
 ## Export output
 ##############################################################################
+# ensure directory exists
+dir.create("Results", showWarnings = FALSE)
+
 #export full model output in .RData
 saveRDS(out.sp.int, file = paste0("Results/ModelFileOutput-", seasonName, "_", AllSpp[j], ".rds"))
 
